@@ -9,75 +9,93 @@
 <body>
     <h1>Image to MakeCode Arcade Sprite Converter</h1>
 
-    <section id="upload-section">
-        <h2>1. Upload Image</h2>
-        <label for="imageLoader">Choose a PNG or JPG image:</label>
-        <input type="file" id="imageLoader" name="imageLoader" accept=".png, .jpg, .jpeg"/>
-        <br>
-        <h3>Original Image:</h3>
-        <canvas id="originalCanvas" style="border: 1px solid black; margin-top: 10px; max-width: 300px; max-height: 300px;"></canvas>
-        <!-- Or use an <img> tag if preferred: <img id="originalImage" src="#" alt="Original Image" style="display: none; max-width: 300px; max-height: 300px;"/> -->
-    </section>
+    <div class="container">
+        <div class="panel input-preview-panel">
+            <h2>Input & Preview</h2>
 
-    <section id="config-section">
-        <h2>2. Configure Sprite</h2>
+            <section id="upload-section">
+                <h3>Upload Image</h3>
+                 <!-- Hidden actual file input -->
+                <input type="file" id="imageLoader" name="imageLoader" accept=".png, .jpg, .jpeg" style="display: none;"/>
+                <!-- Visible drop zone -->
+                <div id="dropZone">
+                    <p>Drop image here or click to browse</p>
+                </div>
+            </section>
 
-        <div class="config-option">
-            <label for="variableName">Variable Name:</label>
-            <input type="text" id="variableName" value="mySprite">
+            <!-- Move config section here -->
+            <section id="config-section">
+                <h3>Configure Sprite</h3>
+                <div class="config-option">
+                    <label for="sizeSlider">Max Dimension (pixels):</label>
+                    <input type="range" id="sizeSlider" name="sizeSlider" min="8" max="128" value="16" style="vertical-align: middle;">
+                    <span id="sliderValueDisplay" style="vertical-align: middle;">16</span>
+                </div>
+                 <div class="config-option">
+                    <label for="paletteMode">Palette:</label>
+                    <select id="paletteMode">
+                        <option value="default">MakeCode Default Palette</option>
+                        <option value="dynamic">Generate Dynamic Palette (Max 16 colors)</option>
+                        <!-- <option value="custom">Custom Palette</option> -->
+                    </select>
+                </div>
+            </section>
+
+            <!-- New section for side-by-side canvases -->
+            <section id="canvas-comparison-section">
+                 <div class="canvas-comparison">
+                    <div class="canvas-container">
+                        <h4>Original Image:</h4>
+                        <canvas id="originalCanvas" style="border: 1px solid black; margin-top: 10px;"></canvas>
+                    </div>
+                    <div class="canvas-container">
+                        <h4>Preview:</h4>
+                        <canvas id="previewCanvas" style="border: 1px solid black; margin-top: 10px; image-rendering: pixelated;"></canvas>
+                        <p>Size: <span id="spriteSize">N/A</span></p>
+                    </div>
+                 </div>
+            </section>
         </div>
 
-        <div class="config-option">
-            <label for="sizeSlider">Max Dimension (pixels):</label>
-            <input type="range" id="sizeSlider" name="sizeSlider" min="8" max="128" value="16" style="vertical-align: middle;">
-            <span id="sliderValueDisplay" style="vertical-align: middle;">16</span>
+        <div class="panel export-panel">
+            <h2>Export</h2>
+
+             <section id="variable-section">
+                <h3>Set Variable Name</h3>
+                 <div class="config-option">
+                    <label for="variableName">Variable Name:</label>
+                    <input type="text" id="variableName" value="mySprite">
+                </div>
+             </section>
+
+            <section id="output-section">
+                <h3>Get Code</h3>
+                <div class="tabs">
+                    <button class="tablink active" onclick="openTab(event, 'javascript')">JavaScript</button>
+                    <button class="tablink" onclick="openTab(event, 'python')">Python</button>
+                    <button class="tablink" onclick="openTab(event, 'imgLiteral')">Image Literal</button>
+                </div>
+
+                <div id="javascript" class="tabcontent" style="display:block;">
+                    <h4>JavaScript</h4>
+                    <textarea id="jsCodeOutput" rows="8" cols="70" readonly></textarea>
+                    <button onclick="copyCode('jsCodeOutput')">Copy JavaScript</button>
+                </div>
+
+                <div id="python" class="tabcontent">
+                    <h4>Python</h4>
+                    <textarea id="pythonCodeOutput" rows="8" cols="70" readonly></textarea>
+                    <button onclick="copyCode('pythonCodeOutput')">Copy Python</button>
+                </div>
+
+                <div id="imgLiteral" class="tabcontent">
+                    <h4>Image Literal (for pasting into sprite editor)</h4>
+                    <textarea id="imgLiteralOutput" rows="8" cols="70" readonly></textarea>
+                    <button onclick="copyCode('imgLiteralOutput')">Copy Image Literal</button>
+                </div>
+            </section>
         </div>
-
-        <div class="config-option">
-            <label>Palette:</label>
-            <select id="paletteMode">
-                <option value="default">MakeCode Default Palette</option>
-                <option value="dynamic">Generate Dynamic Palette (Max 16 colors)</option>
-                <!-- <option value="custom">Custom Palette</option> -->
-            </select>
-        </div>
-
-        <!-- <button id="processButton" disabled>Process Image</button> -->
-
-    </section>
-
-    <section id="preview-section">
-        <h2>3. Preview Sprite</h2>
-        <canvas id="previewCanvas" style="border: 1px solid black; margin-top: 10px; image-rendering: pixelated;"></canvas>
-        <p>Size: <span id="spriteSize">N/A</span></p>
-    </section>
-
-    <section id="output-section">
-        <h2>4. Get Code</h2>
-        <div class="tabs">
-            <button class="tablink active" onclick="openTab(event, 'javascript')">JavaScript</button>
-            <button class="tablink" onclick="openTab(event, 'python')">Python</button>
-            <button class="tablink" onclick="openTab(event, 'imgLiteral')">Image Literal</button>
-        </div>
-
-        <div id="javascript" class="tabcontent" style="display:block;">
-            <h3>JavaScript</h3>
-            <textarea id="jsCodeOutput" rows="8" cols="70" readonly></textarea>
-            <button onclick="copyCode('jsCodeOutput')">Copy JavaScript</button>
-        </div>
-
-        <div id="python" class="tabcontent">
-            <h3>Python</h3>
-            <textarea id="pythonCodeOutput" rows="8" cols="70" readonly></textarea>
-            <button onclick="copyCode('pythonCodeOutput')">Copy Python</button>
-        </div>
-
-        <div id="imgLiteral" class="tabcontent">
-            <h3>Image Literal (for pasting into sprite editor)</h3>
-            <textarea id="imgLiteralOutput" rows="8" cols="70" readonly></textarea>
-            <button onclick="copyCode('imgLiteralOutput')">Copy Image Literal</button>
-        </div>
-    </section>
+    </div>
 
     <script src="script.js"></script>
 </body>

@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
     const imageLoader = document.getElementById('imageLoader');
+    const dropZone = document.getElementById('dropZone');
     const originalCanvas = document.getElementById('originalCanvas');
     const originalCtx = originalCanvas.getContext('2d');
     const variableNameInput = document.getElementById('variableName');
@@ -48,16 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
     //     } : null;
     // }
 
-    // --- Image Loading ---
-    imageLoader.addEventListener('change', (event) => {
-        const file = event.target.files[0];
+    // --- File Handling --- (Combined Drop Zone and Input)
+    function handleFileSelect(file) {
         if (!file || !file.type.startsWith('image/')) {
-            console.error('Please select an image file.');
+            console.error('Invalid file type selected.');
             alert('Please select a valid image file (PNG or JPG).');
             resetUI();
             return;
         }
+        console.log('File selected:', file.name);
+        loadImageFromFile(file);
+    }
 
+    function loadImageFromFile(file) {
         const reader = new FileReader();
 
         reader.onload = (e) => {
@@ -69,36 +73,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
                 originalCtx.drawImage(originalImage, 0, 0);
 
-                // Reset parts of UI but enable processing
-                resetPreviewAndOutput();
+                // Update UI
+                resetPreviewAndOutput(); // Clear previous results
                 console.log('Image loaded successfully.');
 
-                // --- Heuristic Default Size ---
+                // --- Heuristic Default Size --- (Keep as is)
                 const maxOriginalDim = Math.max(originalImage.naturalWidth, originalImage.naturalHeight);
-                let defaultTargetMaxDim = 32; // Default fallback
-                if (maxOriginalDim <= 100) {
-                    defaultTargetMaxDim = 16;
-                } else if (maxOriginalDim <= 500) {
-                    defaultTargetMaxDim = 32;
-                } else {
-                    defaultTargetMaxDim = 64;
-                }
-                // Ensure default is within slider bounds
+                let defaultTargetMaxDim = 32;
+                if (maxOriginalDim <= 100) defaultTargetMaxDim = 16;
+                else if (maxOriginalDim <= 500) defaultTargetMaxDim = 32;
+                else defaultTargetMaxDim = 64;
                 defaultTargetMaxDim = Math.max(parseInt(sizeSlider.min, 10), Math.min(parseInt(sizeSlider.max, 10), defaultTargetMaxDim));
-
                 sizeSlider.value = defaultTargetMaxDim;
                 sliderValueDisplay.textContent = defaultTargetMaxDim;
                 console.log(`Set default max dimension to: ${defaultTargetMaxDim}`);
 
-                // Trigger initial processing based on default settings
-                processImage(); // Auto-process on load AFTER setting slider
+                // Trigger initial processing
+                processImage();
             };
             originalImage.onerror = () => {
-                console.error('Error loading image.');
-                alert('Error loading the image file.');
+                console.error('Error loading image data.');
+                alert('Error loading the image file. It might be corrupted or an unsupported format.');
                 resetUI();
             };
-            originalImage.src = e.target.result;
+            originalImage.src = e.target.result; // Set src AFTER onload/onerror are defined
         };
 
         reader.onerror = () => {
@@ -108,7 +106,56 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         reader.readAsDataURL(file);
+    }
+
+    // --- Image Loading Event Listeners ---
+
+    // Listener for the hidden file input
+    imageLoader.addEventListener('change', (event) => {
+        if (event.target.files && event.target.files[0]) {
+            handleFileSelect(event.target.files[0]);
+        }
     });
+
+    // Listener for clicking the drop zone (triggers hidden input)
+    dropZone.addEventListener('click', () => {
+        imageLoader.click();
+    });
+
+    // Listeners for drag-and-drop
+    dropZone.addEventListener('dragover', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        dropZone.classList.remove('dragover');
+
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileSelect(files[0]); // Process the first dropped file
+        } else {
+            console.warn('Drop event occurred without files.');
+        }
+    });
+
+    // Prevent default drag behavior for the whole window (optional but good)
+    window.addEventListener('dragover', (event) => {
+        event.preventDefault();
+    }, false);
+    window.addEventListener('drop', (event) => {
+        event.preventDefault();
+    }, false);
 
     // --- UI Interaction ---
 

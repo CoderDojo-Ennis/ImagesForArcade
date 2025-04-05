@@ -8,25 +8,63 @@ body {
 h1 {
     text-align: center;
     color: #333;
+    margin-bottom: 20px;
 }
 
-section {
+/* Container for panels */
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 20px; /* Space between panels */
+}
+
+/* Panel styling */
+.panel {
     background: #fff;
-    margin-bottom: 20px;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex: 1; /* Allow panels to grow */
+    min-width: 350px; /* Minimum width before wrapping */
+}
+
+/* Specific panel adjustments if needed */
+.input-preview-panel {
+    /* Add specific styles if needed */
+}
+
+.export-panel {
+    /* Add specific styles if needed */
+}
+
+section {
+    /* background: #fff; */ /* No longer needed on section if panels have bg */
+    margin-bottom: 20px;
+    /* padding: 20px; */ /* Padding is on the panel now */
+    /* border-radius: 8px; */
+    /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
 }
 
 h2 {
     margin-top: 0;
-    color: #555;
+    color: #333; /* Darker panel title */
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 h3 {
+    color: #555; /* Section titles */
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px dotted #ddd;
+    padding-bottom: 5px;
+}
+
+h4 {
     color: #666;
+    margin-top: 15px;
+    margin-bottom: 5px;
 }
 
 label {
@@ -38,13 +76,19 @@ label {
 input[type="file"],
 input[type="text"],
 input[type="number"],
+input[type="range"],
 select,
 textarea {
     padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+input[type="range"] {
+    width: 150px; /* Adjust slider width */
 }
 
 input[type="file"] {
@@ -63,7 +107,7 @@ button {
     border-radius: 4px;
     cursor: pointer;
     font-size: 1em;
-    margin-right: 5px; /* Add some space between buttons */
+    margin-right: 5px;
 }
 
 button:hover {
@@ -78,6 +122,57 @@ button:disabled {
 .config-option {
     margin-bottom: 15px;
 }
+
+/* --- Drop Zone Styles --- */
+#dropZone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    margin-bottom: 15px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#dropZone p {
+    margin: 0;
+    color: #888;
+}
+
+#dropZone.dragover {
+    background-color: #e9e9e9;
+    border-color: #aaa;
+}
+/* --- End Drop Zone --- */
+
+/* --- Canvas Comparison Layout --- */
+.canvas-comparison {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping if needed on small screens */
+    gap: 20px; /* Space between the two canvas containers */
+    margin-bottom: 20px; /* Space below the comparison area */
+}
+
+.canvas-container {
+    flex: 1; /* Each container takes equal space */
+    min-width: 200px; /* Minimum width before wrapping */
+    text-align: center; /* Center headings/text */
+}
+
+.canvas-container h4 {
+    text-align: left; /* Keep headings left-aligned */
+}
+
+.canvas-container canvas {
+     max-width: 100%; /* Make canvas responsive */
+     height: auto;    /* Maintain aspect ratio */
+     display: block;  /* Prevent extra space below canvas */
+     margin-left: auto; /* Center canvas if smaller than container */
+     margin-right: auto;
+}
+
+/* --- End Canvas Comparison --- */
 
 /* Style the tab */
 .tabs {
