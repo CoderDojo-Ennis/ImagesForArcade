@@ -13,31 +13,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const spriteSizeSpan = document.getElementById('spriteSize');
     const jsCodeOutput = document.getElementById('jsCodeOutput');
     const pythonCodeOutput = document.getElementById('pythonCodeOutput');
-    const imgLiteralOutput = document.getElementById('imgLiteralOutput');
+    // const imgLiteralOutput = document.getElementById('imgLiteralOutput'); // Remove reference
 
     let originalImage = null;
     // processedImageData will now store { width, height, palette, pixelIndices }
     let processedImageData = null;
 
-    // --- MakeCode Default Palette --- (Index 0 is transparent)
-    const makeCodeDefaultPaletteRGB = [
-        null, // Index 0: Transparent - handled separately
-        { r: 255, g: 255, b: 255 }, // 1: White #ffffff
-        { r: 255, g: 33,  b: 33  }, // 2: Red #ff2121
-        { r: 255, g: 147, b: 196 }, // 3: Pink #ff93c4
-        { r: 255, g: 129, b: 53  }, // 4: Orange #ff8135
-        { r: 255, g: 246, b: 9   }, // 5: Yellow #fff609
-        { r: 36,  g: 156, b: 163 }, // 6: Teal #249ca3
-        { r: 120, g: 220, b: 82  }, // 7: Green #78dc52
-        { r: 0,   g: 63,  b: 173 }, // 8: Blue #003fad
-        { r: 135, g: 242, b: 255 }, // 9: Light Blue #87f2ff
-        { r: 142, g: 46,  b: 196 }, // A: Purple #8e2ec4
-        { r: 164, g: 131, b: 159 }, // B: Light Purple #a4839f
-        { r: 92,  g: 64,  b: 108 }, // C: Dark Purple #5c406c
-        { r: 229, g: 205, b: 196 }, // D: Tan #e5cdc4
-        { r: 145, g: 70,  b: 61  }, // E: Brown #91463d
-        { r: 0,   g: 0,   b: 0   }  // F: Black #000000
-    ];
+    // --- Predefined Palettes (RGB) ---
+    // Index 0 (transparent) handled separately
+    const predefinedPalettes = {
+        arcade: [
+            null, // 0: Transparent
+            { r: 255, g: 255, b: 255 }, // 1: White #ffffff
+            { r: 255, g: 33,  b: 33  }, // 2: Red #ff2121
+            { r: 255, g: 147, b: 196 }, // 3: Pink #ff93c4
+            { r: 255, g: 129, b: 53  }, // 4: Orange #ff8135
+            { r: 255, g: 246, b: 9   }, // 5: Yellow #fff609
+            { r: 36,  g: 156, b: 163 }, // 6: Teal #249ca3
+            { r: 120, g: 220, b: 82  }, // 7: Green #78dc52
+            { r: 0,   g: 63,  b: 173 }, // 8: Blue #003fad
+            { r: 135, g: 242, b: 255 }, // 9: Light Blue #87f2ff
+            { r: 142, g: 46,  b: 196 }, // A: Purple #8e2ec4
+            { r: 164, g: 131, b: 159 }, // B: Light Purple #a4839f
+            { r: 92,  g: 64,  b: 108 }, // C: Dark Purple #5c406c
+            { r: 229, g: 205, b: 196 }, // D: Tan #e5cdc4
+            { r: 145, g: 70,  b: 61  }, // E: Brown #91463d
+            { r: 0,   g: 0,   b: 0   }  // F: Black #000000
+        ],
+        matte: [
+            null, {r: 255, g: 255, b: 255}, {r: 255, g: 69, b: 90}, {r: 255, g: 174, b: 188}, {r: 255, g: 171, b: 60}, {r: 255, g: 250, b: 64}, {r: 39, g: 140, b: 63}, {r: 55, g: 230, b: 80}, {r: 94, g: 112, b: 212}, {r: 153, g: 213, b: 229}, {r: 168, g: 69, b: 255}, {r: 207, g: 164, b: 255}, {r: 122, g: 74, b: 139}, {r: 255, g: 204, b: 164}, {r: 189, g: 127, b: 71}, {r: 65, g: 52, b: 78}
+        ],
+        pastel: [
+            null, {r: 255, g: 255, b: 255}, {r: 255, g: 176, b: 161}, {r: 255, g: 214, b: 236}, {r: 255, g: 220, b: 161}, {r: 255, g: 253, b: 161}, {r: 161, g: 255, b: 225}, {r: 186, g: 255, b: 193}, {r: 161, g: 214, b: 255}, {r: 225, g: 255, b: 255}, {r: 214, g: 161, b: 255}, {r: 234, g: 193, b: 255}, {r: 189, g: 176, b: 214}, {r: 255, g: 240, b: 225}, {r: 214, g: 176, b: 161}, {r: 105, g: 106, b: 106}
+        ],
+        sweet: [
+            null, {r: 255, g: 255, b: 255}, {r: 128, g: 61, b: 65}, {r: 154, g: 212, b: 106}, {r: 235, g: 139, b: 74}, {r: 246, g: 216, b: 110}, {r: 24, g: 84, b: 74}, {r: 49, g: 164, b: 119}, {r: 54, g: 95, b: 145}, {r: 107, g: 208, b: 255}, {r: 101, g: 55, b: 128}, {r: 159, g: 123, b: 173}, {r: 214, g: 184, b: 192}, {r: 231, g: 215, b: 193}, {r: 172, g: 137, b: 110}, {r: 79, g: 69, b: 90}
+        ],
+        poke: [
+            null, {r: 255, g: 255, b: 255}, {r: 228, g: 89, b: 93}, {r: 247, g: 161, b: 113}, {r: 252, g: 234, b: 140}, {r: 105, g: 216, b: 175}, {r: 113, g: 170, b: 106}, {r: 44, g: 110, b: 183}, {r: 81, g: 150, b: 216}, {r: 138, g: 167, b: 204}, {r: 176, g: 112, b: 204}, {r: 222, g: 163, b: 234}, {r: 172, g: 206, b: 162}, {r: 231, g: 204, b: 174}, {r: 154, g: 109, b: 95}, {r: 69, g: 69, b: 69}
+        ],
+        adventure: [
+            null, {r: 255, g: 255, b: 255}, {r: 233, g: 212, b: 169}, {r: 197, g: 126, b: 125}, {r: 167, g: 78, b: 90}, {r: 248, g: 174, b: 73}, {r: 157, g: 157, b: 90}, {r: 85, g: 125, b: 74}, {r: 15, g: 74, b: 109}, {r: 59, g: 131, b: 161}, {r: 77, g: 80, b: 97}, {r: 110, g: 129, b: 161}, {r: 161, g: 172, b: 189}, {r: 231, g: 231, b: 231}, {r: 113, g: 74, b: 71}, {r: 28, g: 31, b: 33}
+        ],
+        diy: [
+            null, {r: 255, g: 255, b: 255}, {r: 255, g: 0, b: 0}, {r: 255, g: 153, b: 170}, {r: 255, g: 204, b: 0}, {r: 255, g: 255, b: 0}, {r: 0, g: 255, b: 0}, {r: 0, g: 204, b: 0}, {r: 0, g: 0, b: 255}, {r: 0, g: 255, b: 255}, {r: 170, g: 0, b: 255}, {r: 204, g: 153, b: 255}, {r: 170, g: 170, b: 170}, {r: 238, g: 187, b: 136}, {r: 136, g: 68, b: 0}, {r: 0, g: 0, b: 0}
+        ],
+        adafruit: [
+            null, {r: 255, g: 255, b: 255}, {r: 255, g: 0, b: 0}, {r: 255, g: 85, b: 0}, {r: 255, g: 170, b: 0}, {r: 255, g: 255, b: 0}, {r: 0, g: 255, b: 0}, {r: 0, g: 170, b: 85}, {r: 0, g: 0, b: 255}, {r: 0, g: 170, b: 255}, {r: 170, g: 0, b: 255}, {r: 255, g: 0, b: 255}, {r: 170, g: 170, b: 170}, {r: 85, g: 85, b: 85}, {r: 255, g: 85, b: 170}, {r: 0, g: 0, b: 0}
+        ],
+        still_life: [
+            null, {r: 255, g: 255, b: 255}, {r: 155, g: 226, b: 222}, {r: 255, g: 111, b: 90}, {r: 224, g: 148, b: 106}, {r: 232, g: 196, b: 102}, {r: 173, g: 205, b: 109}, {r: 105, g: 180, b: 119}, {r: 84, g: 129, b: 142}, {r: 97, g: 164, b: 196}, {r: 157, g: 148, b: 209}, {r: 107, g: 90, b: 131}, {r: 141, g: 121, b: 110}, {r: 199, g: 174, b: 158}, {r: 112, g: 96, b: 89}, {r: 61, g: 58, b: 79}
+        ],
+        steam_punk: [
+            null, {r: 255, g: 255, b: 255}, {r: 180, g: 218, b: 214}, {r: 59, g: 55, b: 64}, {r: 102, g: 77, b: 73}, {r: 159, g: 103, b: 81}, {r: 115, g: 113, b: 86}, {r: 159, g: 168, b: 102}, {r: 100, g: 125, b: 135}, {r: 138, g: 161, b: 171}, {r: 125, g: 113, b: 135}, {r: 163, g: 146, b: 165}, {r: 189, g: 191, b: 197}, {r: 228, g: 231, b: 234}, {r: 165, g: 148, b: 135}, {r: 89, g: 85, b: 90}
+        ],
+        grayscale: [
+             null, {r: 255, g: 255, b: 255}, {r: 247, g: 247, b: 247}, {r: 225, g: 225, b: 225}, {r: 204, g: 204, b: 204}, {r: 184, g: 184, b: 184}, {r: 163, g: 163, b: 163}, {r: 142, g: 142, b: 142}, {r: 122, g: 122, b: 122}, {r: 102, g: 102, b: 102}, {r: 81, g: 81, b: 81}, {r: 61, g: 61, b: 61}, {r: 41, g: 41, b: 41}, {r: 20, g: 20, b: 20}, {r: 0, g: 0, b: 0}, {r: 0, g: 0, b: 0} // Only 14 unique grays + black
+        ]
+    };
+
+    // MakeCode Default Palette (Keep for reference/fallback?)
+    const makeCodeDefaultPaletteRGB = predefinedPalettes.arcade;
 
     // Helper to convert hex to RGB
     // function hexToRgb(hex) {
@@ -300,22 +336,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function mapToPalette(imageData, paletteMode) {
-        console.log('Mapping to palette...');
+        // console.log('Mapping to palette...'); // Noisy
         const { width, height, data } = imageData;
         const pixelIndices = new Uint8Array(width * height); // Array to hold palette indices (0-15)
-        let currentPalette = [];
-        let paletteIncludesTransparent = true; // MakeCode default always includes transparent at 0
+        let currentPalette = predefinedPalettes[paletteMode]; // Get selected palette by key
 
-        if (paletteMode === 'default') {
-            currentPalette = makeCodeDefaultPaletteRGB;
-        } else if (paletteMode === 'dynamic') {
-            // --- TODO: Implement Dynamic Palette Generation ---
-            console.warn('Dynamic palette generation not implemented yet. Using default.');
-            // For now, fall back to default or throw error
-             currentPalette = makeCodeDefaultPaletteRGB;
-            // throw new Error("Dynamic palette generation not yet implemented.");
-        } else {
-            throw new Error(`Unknown palette mode: ${paletteMode}`);
+        // Fallback to default if the selected palette doesn't exist (shouldn't happen)
+        if (!currentPalette) {
+            console.warn(`Selected palette '${paletteMode}' not found, using default Arcade palette.`);
+            currentPalette = predefinedPalettes.arcade;
         }
 
         const transparencyThreshold = 128; // Alpha values below this are treated as transparent
@@ -342,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        console.log('Palette mapping complete.');
+        // console.log('Palette mapping complete.'); // Noisy
         return {
             width: width,
             height: height,
@@ -352,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generateImageLiteral(processedData) {
-        console.log('Generating image literal...');
+        // console.log('Generating image literal...'); // Noisy
         const { width, height, palette, pixelIndices } = processedData;
 
         if (!palette || !pixelIndices) {
@@ -364,18 +393,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const heightHex = height.toString(16).padStart(2, '0');
 
         // Palette format: . RRGGBBRRGGBB ... RRGGBB .
-        // Skip index 0 (transparent), use '.' for it.
+        // Exactly 1 space before each 6-digit hex color.
         let paletteHex = "."; // Start with transparent placeholder
-        // Ensure we provide exactly 15 colors after the first dot.
         for (let i = 1; i < 16; i++) {
-            // Use palette colors if available (index exists and is not null)
-            // Otherwise, default to black (or another suitable default like white)
             const color = (i < palette.length && palette[i]) ? palette[i] : { r: 0, g: 0, b: 0 }; // Default black
             const rHex = color.r.toString(16).padStart(2, '0');
             const gHex = color.g.toString(16).padStart(2, '0');
             const bHex = color.b.toString(16).padStart(2, '0');
-            // Add space ONLY between colors, not after first dot or before last dot
-            paletteHex += (i === 1 ? '' : ' ') + `${rHex}${gHex}${bHex}`;
+            paletteHex += ` ${rHex}${gHex}${bHex}`; // Add space *before* the hex code
         }
         paletteHex += " ."; // End with space and transparent placeholder
 
@@ -385,17 +410,15 @@ document.addEventListener('DOMContentLoaded', () => {
             pixelDataHex += pixelIndices[i].toString(16);
         }
 
-        // Ensure pixel data length is even by padding if necessary (MakeCode format requirement)
-        // This typically happens for sprites with an odd number of pixels (width*height is odd)
-        // Padding with 0 (transparent) is usually safe.
+        // Remove incorrect padding for odd pixel counts
+        /*
          if (pixelDataHex.length % 2 !== 0) {
              pixelDataHex += '0'; // Pad with transparent index
          }
+        */
 
         // Check total length (optional sanity check)
          // console.log(`Literal parts: W=${widthHex}, H=${heightHex}, Palette=${paletteHex}, Pixels=${pixelDataHex}`);
-         // console.log(`Raw palette hex: [${paletteHex}]`)
-         // console.log(`Raw pixel data hex: [${pixelDataHex}]`)
 
         return `img\`${widthHex}${heightHex}${paletteHex}${pixelDataHex}\``;
     }
@@ -455,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // console.log('Updating code outputs...'); // Noisy
         jsCodeOutput.value = `let ${varName} = ${imgLiteral};`;
         pythonCodeOutput.value = `${varName} = ${imgLiteral}`; // Correct Python assignment
-        imgLiteralOutput.value = imgLiteral;
+        // imgLiteralOutput.value = imgLiteral; // Remove assignment
     }
 
     function resetPreviewAndOutput() {
@@ -469,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spriteSizeSpan.textContent = 'N/A';
         jsCodeOutput.value = '';
         pythonCodeOutput.value = '';
-        imgLiteralOutput.value = '';
+        // imgLiteralOutput.value = ''; // Remove reset
         processedImageData = null;
     }
 
@@ -485,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset slider to default
         sizeSlider.value = 16;
         sliderValueDisplay.textContent = '16';
-        paletteModeSelect.value = 'default';
+        paletteModeSelect.value = 'arcade'; // Set default palette
         resetPreviewAndOutput(); // Clear outputs and preview
     }
 

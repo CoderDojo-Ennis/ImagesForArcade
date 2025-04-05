@@ -34,9 +34,18 @@
                  <div class="config-option">
                     <label for="paletteMode">Palette:</label>
                     <select id="paletteMode">
-                        <option value="default">MakeCode Default Palette</option>
-                        <option value="dynamic">Generate Dynamic Palette (Max 16 colors)</option>
-                        <!-- <option value="custom">Custom Palette</option> -->
+                        <option value="arcade">Arcade</option>
+                        <option value="matte">Matte</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="sweet">Sweet</option>
+                        <option value="poke">Poke</option>
+                        <option value="adventure">Adventure</option>
+                        <option value="diy">DIY</option>
+                        <option value="adafruit">Adafruit</option>
+                        <option value="still_life">Still Life</option>
+                        <option value="steam_punk">Steam Punk</option>
+                        <option value="grayscale">Grayscale</option>
+                        <!-- Removed dynamic/custom options -->
                     </select>
                 </div>
             </section>
@@ -73,7 +82,7 @@
                 <div class="tabs">
                     <button class="tablink active" onclick="openTab(event, 'javascript')">JavaScript</button>
                     <button class="tablink" onclick="openTab(event, 'python')">Python</button>
-                    <button class="tablink" onclick="openTab(event, 'imgLiteral')">Image Literal</button>
+                    <!-- <button class="tablink" onclick="openTab(event, 'imgLiteral')">Image Literal</button> -->
                 </div>
 
                 <div id="javascript" class="tabcontent" style="display:block;">
@@ -88,11 +97,13 @@
                     <button onclick="copyCode('pythonCodeOutput')">Copy Python</button>
                 </div>
 
+                <!--
                 <div id="imgLiteral" class="tabcontent">
                     <h4>Image Literal (for pasting into sprite editor)</h4>
                     <textarea id="imgLiteralOutput" rows="8" cols="70" readonly></textarea>
                     <button onclick="copyCode('imgLiteralOutput')">Copy Image Literal</button>
                 </div>
+                -->
             </section>
         </div>
     </div>
