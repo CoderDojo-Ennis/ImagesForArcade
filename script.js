@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const zoomSlider = document.getElementById('zoomSlider');
     const zoomValueDisplay = document.getElementById('zoomValueDisplay');
     const scalingModeSelect = document.getElementById('scalingMode');
+    const spriteKindSelect = document.getElementById('spriteKind');
+    const customSpriteKindInput = document.getElementById('customSpriteKind');
 
     let originalImage = null;
     // processedImageData will now store { width, height, palette, pixelIndices }
@@ -210,6 +212,19 @@ document.addEventListener('DOMContentLoaded', () => {
     paletteModeSelect.addEventListener('change', processImageDebounced);
     scalingModeSelect.addEventListener('change', processImageDebounced);
 
+    // Listener for SpriteKind dropdown
+    spriteKindSelect.addEventListener('change', (event) => {
+        const showCustom = (event.target.value === 'Other');
+        customSpriteKindInput.style.display = showCustom ? 'inline-block' : 'none';
+        if (!showCustom) {
+             customSpriteKindInput.value = ''; // Clear custom if hiding
+        }
+        processImageDebounced(); // Regenerate code when kind changes
+    });
+
+    // Listener for custom sprite kind input
+    customSpriteKindInput.addEventListener('input', processImageDebounced);
+
     // Add listener for zoom slider
     zoomSlider.addEventListener('input', () => {
         zoomValueDisplay.textContent = `${zoomSlider.value}x`;
@@ -243,6 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetMaxDim = parseInt(sizeSlider.value, 10);
         const paletteMode = paletteModeSelect.value;
         const scalingMode = scalingModeSelect.value;
+
+        // Determine SpriteKind
+        let spriteKindValue = spriteKindSelect.value;
+        if (spriteKindValue === 'Other') {
+            spriteKindValue = customSpriteKindInput.value.trim() || 'Player'; // Default if empty
+        }
 
         // Validate inputs
         if (!varName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
@@ -315,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview(processedImageData);
 
         // 6. Update Output Textareas
-        updateOutputs(varName, imgLiteral);
+        updateOutputs(varName, imgLiteral, spriteKindValue);
 
         console.log('Processing complete.');
     }
@@ -482,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
          // console.log('Preview updated.'); // Noisy
     }
 
-    function updateOutputs(varName, multiLineContent) {
+    function updateOutputs(varName, multiLineContent, spriteKind) {
         // console.log('Updating code outputs...'); // Noisy
 
         // Ensure multiLineContent doesn't start/end with extra newlines
@@ -494,17 +515,19 @@ document.addEventListener('DOMContentLoaded', () => {
                                              .join('\n'); // Join with newline char
 
         // Construct the final formatted code strings using template literals with actual newlines
-        // JavaScript version (already correct)
+        const jsSpriteKind = `SpriteKind.${spriteKind}`; // Format JS SpriteKind
+        const pythonSpriteKind = `SpriteKind.${spriteKind.toLowerCase()}`; // Format Python SpriteKind (lowercase)
+
         const jsCode =
 `let ${varName} = sprites.create(img\`
 ${indentedSpriteData}
-\`, SpriteKind.Player)`;
+\`, ${jsSpriteKind})`;
 
         // Python version - Add parentheses around the img literal
         const pythonCode =
 `${varName} = sprites.create(img("""
 ${indentedSpriteData}
-"""), SpriteKind.player)`; // Added parentheses HERE ---^  ^
+"""), ${pythonSpriteKind})`; // Use correct kind
 
         jsCodeOutput.value = jsCode;
         pythonCodeOutput.value = pythonCode;
@@ -525,6 +548,12 @@ ${indentedSpriteData}
         jsCodeOutput.value = '';
         pythonCodeOutput.value = '';
         processedImageData = null;
+        // zoomSlider.value = 1; // Reset zoom slider to 1 - Belongs in resetUI
+        // zoomValueDisplay.textContent = '1x'; // Reset zoom display to 1x - Belongs in resetUI
+        // scalingModeSelect.value = 'pixelated'; // Reset scaling mode to pixelated - Belongs in resetUI
+        // spriteKindSelect.value = 'Player'; // Reset sprite kind dropdown - Belongs in resetUI
+        // customSpriteKindInput.style.display = 'none'; // Hide custom input - Belongs in resetUI
+        // customSpriteKindInput.value = ''; // Clear custom input - Belongs in resetUI
     }
 
     function resetUI() {
@@ -540,9 +569,12 @@ ${indentedSpriteData}
         sizeSlider.value = 16;
         sliderValueDisplay.textContent = '16';
         paletteModeSelect.value = 'arcade'; // Set default palette
-        zoomSlider.value = 1; // Reset zoom slider to 1
-        zoomValueDisplay.textContent = '1x'; // Reset zoom display to 1x
-        scalingModeSelect.value = 'pixelated'; // Reset scaling mode to pixelated
+        // zoomSlider.value = 1; // Reset zoom slider to 1 - Belongs in resetUI
+        // zoomValueDisplay.textContent = '1x'; // Reset zoom display to 1x - Belongs in resetUI
+        // scalingModeSelect.value = 'pixelated'; // Reset scaling mode to pixelated - Belongs in resetUI
+        spriteKindSelect.value = 'Player'; // Reset sprite kind dropdown - Belongs in resetUI
+        customSpriteKindInput.style.display = 'none'; // Hide custom input - Belongs in resetUI
+        customSpriteKindInput.value = ''; // Clear custom input - Belongs in resetUI
         resetPreviewAndOutput(); // Clear outputs and preview (now clears to black, hides size)
     }
 

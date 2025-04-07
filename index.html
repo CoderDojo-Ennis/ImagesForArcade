@@ -71,8 +71,8 @@
                         <div class="config-option">
                             <label for="scalingMode">Scaling Mode:</label>
                             <select id="scalingMode">
-                                <option value="pixelated">Nearest Neighbor</option>
                                 <option value="smooth">Smooth</option>
+                                <option value="pixelated">Nearest Neighbor</option>
                             </select>
                         </div>
                     </div>
@@ -83,11 +83,23 @@
         <div class="panel export-panel">
             <h2>Export</h2>
 
-             <section id="variable-section">
-                <h3>Set Variable Name</h3>
+             <section id="export-config-section">
+                <h3>Export Configuration</h3>
                  <div class="config-option">
                     <label for="variableName">Variable Name:</label>
                     <input type="text" id="variableName" value="mySprite">
+                </div>
+                <!-- Add Sprite Kind Selection -->
+                <div class="config-option">
+                    <label for="spriteKind">Sprite Kind:</label>
+                    <select id="spriteKind">
+                        <option value="Player">Player</option>
+                        <option value="Projectile">Projectile</option>
+                        <option value="Food">Food</option>
+                        <option value="Enemy">Enemy</option>
+                        <option value="Other">Other...</option>
+                    </select>
+                    <input type="text" id="customSpriteKind" placeholder="Enter custom kind" style="display: none; margin-left: 5px;">
                 </div>
              </section>
 
