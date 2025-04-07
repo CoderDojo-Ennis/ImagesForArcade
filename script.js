@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const spriteSizeSpan = document.getElementById('spriteSize');
     const jsCodeOutput = document.getElementById('jsCodeOutput');
     const pythonCodeOutput = document.getElementById('pythonCodeOutput');
-    // const imgLiteralOutput = document.getElementById('imgLiteralOutput'); // Remove reference
+    const zoomSlider = document.getElementById('zoomSlider');
+    const zoomValueDisplay = document.getElementById('zoomValueDisplay');
+    const scalingModeSelect = document.getElementById('scalingMode');
 
     let originalImage = null;
     // processedImageData will now store { width, height, palette, pixelIndices }
@@ -206,6 +208,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     paletteModeSelect.addEventListener('change', processImageDebounced);
+    scalingModeSelect.addEventListener('change', processImageDebounced);
+
+    // Add listener for zoom slider
+    zoomSlider.addEventListener('input', () => {
+        zoomValueDisplay.textContent = `${zoomSlider.value}x`;
+        // Only redraw preview if image data exists
+        if (processedImageData) {
+            updatePreview(processedImageData); // Redraw with new zoom
+        }
+    });
 
     // Debounce function to prevent excessive processing
     let debounceTimer;
@@ -230,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const varName = variableNameInput.value || 'mySprite';
         const targetMaxDim = parseInt(sizeSlider.value, 10);
         const paletteMode = paletteModeSelect.value;
+        const scalingMode = scalingModeSelect.value;
 
         // Validate inputs
         if (!varName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
@@ -278,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tempCtx = tempCanvas.getContext('2d');
         tempCanvas.width = actualTargetWidth;
         tempCanvas.height = actualTargetHeight;
-        tempCtx.imageSmoothingEnabled = false; // Crucial for pixel art
+        tempCtx.imageSmoothingEnabled = (scalingMode === 'smooth');
         tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
         console.log(`Resized to ${tempCanvas.width}x${tempCanvas.height}`);
 
@@ -411,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePreview(processedData) {
-        console.log('Updating preview...');
+        // console.log('Updating preview...'); // Noisy
         const { width, height, palette, pixelIndices } = processedData;
 
          if (!palette || !pixelIndices) {
@@ -423,25 +436,35 @@ document.addEventListener('DOMContentLoaded', () => {
          }
 
         spriteSizeSpan.textContent = `${width}x${height}`;
+        spriteSizeSpan.parentNode.style.display = ''; // Show size text
 
-        // Scale up preview for visibility
-        const previewDim = Math.max(160, width * 4, height * 4); // Ensure preview is reasonably large
-        const scale = Math.max(1, Math.floor(previewDim / Math.max(width, height))); // Auto-scale
-        previewCanvas.width = width * scale;
-        previewCanvas.height = height * scale;
+        // --- Set Fixed Arcade Canvas Size --- 
+        const arcadeScreenWidth = 160;
+        const arcadeScreenHeight = 120;
+        previewCanvas.width = arcadeScreenWidth;
+        previewCanvas.height = arcadeScreenHeight;
         previewCtx.imageSmoothingEnabled = false; // Keep it pixelated
 
-        // Clear previous preview
-        previewCtx.fillStyle = '#eee'; // Background for transparency
-        previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+        // Get current zoom level
+        const zoomLevel = parseFloat(zoomSlider.value);
 
+        // Clear canvas
+        previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+        // Calculate top-left corner to center the *zoomed* sprite on the canvas
+        const zoomedWidth = width * zoomLevel;
+        const zoomedHeight = height * zoomLevel;
+        const startX = Math.floor((arcadeScreenWidth - zoomedWidth) / 2);
+        const startY = Math.floor((arcadeScreenHeight - zoomedHeight) / 2);
+
+        // --- Draw Sprite Pixel by Pixel at Zoomed Size --- 
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 const index = y * width + x;
                 const paletteIndex = pixelIndices[index];
 
                 if (paletteIndex === 0) {
-                    // Transparent - already cleared to #eee bg
+                    // Transparent
                     continue;
                 }
 
@@ -449,12 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const color = (paletteIndex > 0 && paletteIndex < palette.length) ? palette[paletteIndex] : null;
                 if (color) {
                     previewCtx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
-                    previewCtx.fillRect(x * scale, y * scale, scale, scale);
+                    // Draw a zoomLevel x zoomLevel rectangle for each pixel
+                    previewCtx.fillRect(startX + x * zoomLevel, startY + y * zoomLevel, zoomLevel, zoomLevel);
                 } else {
                      console.warn(`Invalid or missing palette color for index ${paletteIndex} at (${x},${y})`);
-                     // Draw placeholder for missing/invalid color
-                     previewCtx.fillStyle = 'magenta'; // Error color
-                     previewCtx.fillRect(x * scale, y * scale, scale, scale);
                 }
             }
         }
@@ -491,16 +512,18 @@ ${indentedSpriteData}
 
     function resetPreviewAndOutput() {
         if (previewCtx) {
-            previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-            previewCanvas.width = 160; // Reset to a default size
-            previewCanvas.height = 160;
-            previewCtx.fillStyle = '#eee'; // Match background
+            // Reset to black background initially
+            previewCanvas.width = 160;
+            previewCanvas.height = 120;
+            previewCtx.fillStyle = '#000000';
             previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
         }
-        spriteSizeSpan.textContent = 'N/A';
+        if (spriteSizeSpan) {
+             spriteSizeSpan.textContent = 'N/A';
+             spriteSizeSpan.parentNode.style.display = 'none'; // Hide size text
+        }
         jsCodeOutput.value = '';
         pythonCodeOutput.value = '';
-        // imgLiteralOutput.value = ''; // Remove reset
         processedImageData = null;
     }
 
@@ -517,7 +540,10 @@ ${indentedSpriteData}
         sizeSlider.value = 16;
         sliderValueDisplay.textContent = '16';
         paletteModeSelect.value = 'arcade'; // Set default palette
-        resetPreviewAndOutput(); // Clear outputs and preview
+        zoomSlider.value = 1; // Reset zoom slider to 1
+        zoomValueDisplay.textContent = '1x'; // Reset zoom display to 1x
+        scalingModeSelect.value = 'pixelated'; // Reset scaling mode to pixelated
+        resetPreviewAndOutput(); // Clear outputs and preview (now clears to black, hides size)
     }
 
     // Initialize UI state

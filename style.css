@@ -157,11 +157,41 @@ button:disabled {
 .canvas-container {
     flex: 1; /* Each container takes equal space */
     min-width: 200px; /* Minimum width before wrapping */
-    text-align: center; /* Center headings/text */
+    /* text-align: center; */ /* Remove centering for left alignment */
+}
+
+/* Style the preview container specifically */
+#preview-container {
+    aspect-ratio: 4 / 3;
+    /* border: 1px solid #ccc; */ /* Remove border */
+    background-color: #000000; /* Black background like Arcade screen */
+    min-width: 160px;
+    max-width: 320px; /* Or adjust as needed */
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .canvas-container h4 {
     text-align: left; /* Keep headings left-aligned */
+    width: 100%; /* Ensure heading takes full width for alignment */
+    margin-bottom: 5px;
+}
+
+/* Ensure preview canvas scales within its container */
+#preview-container canvas#previewCanvas {
+    /* Scale the canvas element itself */
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Scale down/up maintaining aspect ratio */
+    /* max-width: 100%; */ /* Replaced by width */
+    /* max-height: calc(100% - 30px); */ /* Replaced by height */
+    /* background-color: #eee; */ /* Remove background - let container show */
+    image-rendering: pixelated; /* Ensure crisp pixels */
+    display: block; /* Ensure block display for sizing */
 }
 
 .canvas-container canvas {
@@ -171,8 +201,6 @@ button:disabled {
      margin-left: auto; /* Center canvas if smaller than container */
      margin-right: auto;
 }
-
-/* --- End Canvas Comparison --- */
 
 /* Style the tab */
 .tabs {
@@ -222,11 +250,13 @@ textarea {
     margin-top: 5px;
 }
 
+/* Remove general background for preview canvas - handled by #preview-container rules */
+/*
 #previewCanvas {
-    background-color: #eee; /* Make transparent areas visible */
-    display: block; /* Make canvas block level to control size */
-    /* The 'image-rendering: pixelated' style is in the HTML */
+    background-color: #eee; 
+    display: block; 
 }
+*/
 
 #originalCanvas {
     background-color: #eee; /* Make transparent areas visible */
@@ -243,4 +273,16 @@ textarea {
 #resizeValueInputs label {
     margin-left: 5px;
     margin-right: 5px;
+}
+
+/* --- End Canvas Comparison --- */
+
+/* Center zoom controls contents */
+.zoom-controls {
+    /* text-align: center; */ /* Replaced by flexbox */
+    display: flex;
+    /* justify-content: center; */ /* Change to flex-start for left alignment */
+    justify-content: flex-start;
+    align-items: center;    /* Align items vertically */
+    gap: 8px; /* Add some space between label, slider, value */
 } 

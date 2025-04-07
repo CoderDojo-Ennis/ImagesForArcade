@@ -23,44 +23,58 @@
                 </div>
             </section>
 
-            <!-- Move config section here -->
-            <section id="config-section">
-                <h3>Configure Sprite</h3>
-                <div class="config-option">
-                    <label for="sizeSlider">Max Dimension (pixels):</label>
-                    <input type="range" id="sizeSlider" name="sizeSlider" min="8" max="128" value="16" style="vertical-align: middle;">
-                    <span id="sliderValueDisplay" style="vertical-align: middle;">16</span>
-                </div>
-                 <div class="config-option">
-                    <label for="paletteMode">Palette:</label>
-                    <select id="paletteMode">
-                        <option value="arcade">Arcade</option>
-                        <option value="matte">Matte</option>
-                        <option value="pastel">Pastel</option>
-                        <option value="sweet">Sweet</option>
-                        <option value="poke">Poke</option>
-                        <option value="adventure">Adventure</option>
-                        <option value="diy">DIY</option>
-                        <option value="adafruit">Adafruit</option>
-                        <option value="still_life">Still Life</option>
-                        <option value="steam_punk">Steam Punk</option>
-                        <option value="grayscale">Grayscale</option>
-                        <!-- Removed dynamic/custom options -->
-                    </select>
-                </div>
-            </section>
-
-            <!-- New section for side-by-side canvases -->
+            <!-- Section for side-by-side canvases -->
             <section id="canvas-comparison-section">
                  <div class="canvas-comparison">
                     <div class="canvas-container">
-                        <h4>Original Image:</h4>
+                        <h4>Original Image</h4>
                         <canvas id="originalCanvas" style="border: 1px solid black; margin-top: 10px;"></canvas>
                     </div>
                     <div class="canvas-container">
-                        <h4>Preview:</h4>
-                        <canvas id="previewCanvas" style="border: 1px solid black; margin-top: 10px; image-rendering: pixelated;"></canvas>
+                        <h4>Preview in Arcade</h4>
+                        <!-- Move Max Dim here -->
+                        <div class="config-option">
+                            <label for="sizeSlider">Max Dimension (pixels):</label>
+                            <input type="range" id="sizeSlider" name="sizeSlider" min="8" max="128" value="16" style="vertical-align: middle;">
+                            <span id="sliderValueDisplay" style="vertical-align: middle;">16</span>
+                        </div>
+                        <!-- Move Size P here -->
                         <p>Size: <span id="spriteSize">N/A</span></p>
+                        <!-- Preview container -->
+                        <div id="preview-container">
+                             <canvas id="previewCanvas" style="image-rendering: pixelated;"></canvas>
+                        </div>
+                         <!-- Zoom controls -->
+                        <div class="zoom-controls" style="margin-top: 10px;">
+                             <label for="zoomSlider">Zoom:</label>
+                             <input type="range" id="zoomSlider" name="zoomSlider" min="1" max="5" value="1" step="0.5" style="vertical-align: middle;">
+                             <span id="zoomValueDisplay" style="vertical-align: middle;">1x</span>
+                        </div>
+                         <!-- Add Palette here -->
+                         <div class="config-option">
+                            <label for="paletteMode">Palette:</label>
+                            <select id="paletteMode">
+                                <option value="arcade">Arcade</option>
+                                <option value="matte">Matte</option>
+                                <option value="pastel">Pastel</option>
+                                <option value="sweet">Sweet</option>
+                                <option value="poke">Poke</option>
+                                <option value="adventure">Adventure</option>
+                                <option value="diy">DIY</option>
+                                <option value="adafruit">Adafruit</option>
+                                <option value="still_life">Still Life</option>
+                                <option value="steam_punk">Steam Punk</option>
+                                <option value="grayscale">Grayscale</option>
+                            </select>
+                        </div>
+                        <!-- Add Scaling Mode Dropdown -->
+                        <div class="config-option">
+                            <label for="scalingMode">Scaling Mode:</label>
+                            <select id="scalingMode">
+                                <option value="pixelated">Nearest Neighbor</option>
+                                <option value="smooth">Smooth</option>
+                            </select>
+                        </div>
                     </div>
                  </div>
             </section>
