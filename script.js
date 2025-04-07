@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 4. Generate MakeCode `img` Literal
-        const imgLiteral = generateImageLiteral(processedImageData); // paletteMode no longer needed here
+        const imgLiteral = generateImageLiteral(processedImageData);
 
         // 5. Update Preview Canvas
         updatePreview(processedImageData);
@@ -381,46 +381,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generateImageLiteral(processedData) {
-        // console.log('Generating image literal...'); // Noisy
-        const { width, height, palette, pixelIndices } = processedData;
+        // console.log('Generating image literal multi-line...'); // Noisy
+        const { width, height, pixelIndices } = processedData;
 
-        if (!palette || !pixelIndices) {
-             console.error("Missing palette or pixel data for literal generation.");
-             return 'img``'; // Return empty literal on error
+        if (!pixelIndices || width <= 0 || height <= 0) {
+             console.error("Missing or invalid pixel data for literal generation.");
+             return ''; // Return empty string on error
         }
 
-        const widthHex = width.toString(16).padStart(2, '0');
-        const heightHex = height.toString(16).padStart(2, '0');
-
-        // Palette format: . RRGGBBRRGGBB ... RRGGBB .
-        // Exactly 1 space before each 6-digit hex color.
-        let paletteHex = "."; // Start with transparent placeholder
-        for (let i = 1; i < 16; i++) {
-            const color = (i < palette.length && palette[i]) ? palette[i] : { r: 0, g: 0, b: 0 }; // Default black
-            const rHex = color.r.toString(16).padStart(2, '0');
-            const gHex = color.g.toString(16).padStart(2, '0');
-            const bHex = color.b.toString(16).padStart(2, '0');
-            paletteHex += ` ${rHex}${gHex}${bHex}`; // Add space *before* the hex code
+        // --- Generate Multi-line Format with Spaces and ACTUAL newlines ---
+        let multiLineContent = "";
+        for (let y = 0; y < height; y++) {
+            let rowString = "";
+            for (let x = 0; x < width; x++) {
+                const index = y * width + x;
+                // Ensure index is valid, default to 0 if out of bounds (shouldn't happen)
+                const paletteIndex = (index < pixelIndices.length) ? pixelIndices[index] : 0;
+                // Use '.' for transparent (index 0), hex otherwise
+                const char = (paletteIndex === 0) ? '.' : paletteIndex.toString(16);
+                rowString += char + " "; // Add character AND space
+            }
+            // Trim trailing space from the row before adding ACTUAL newline
+            multiLineContent += rowString.trimEnd() + "\n"; // Use "\n" (newline character)
         }
-        paletteHex += " ."; // End with space and transparent placeholder
+        // Trim the final newline
+        multiLineContent = multiLineContent.trimEnd();
 
-        // Pixel data: Each hex digit (0-f) corresponds to a palette index
-        let pixelDataHex = "";
-        for (let i = 0; i < pixelIndices.length; i++) {
-            pixelDataHex += pixelIndices[i].toString(16);
-        }
-
-        // Remove incorrect padding for odd pixel counts
-        /*
-         if (pixelDataHex.length % 2 !== 0) {
-             pixelDataHex += '0'; // Pad with transparent index
-         }
-        */
-
-        // Check total length (optional sanity check)
-         // console.log(`Literal parts: W=${widthHex}, H=${heightHex}, Palette=${paletteHex}, Pixels=${pixelDataHex}`);
-
-        return `img\`${widthHex}${heightHex}${paletteHex}${pixelDataHex}\``;
+        return multiLineContent; // Return just the multi-line content string with actual newlines
     }
 
     function updatePreview(processedData) {
@@ -474,11 +461,32 @@ document.addEventListener('DOMContentLoaded', () => {
          // console.log('Preview updated.'); // Noisy
     }
 
-    function updateOutputs(varName, imgLiteral) {
+    function updateOutputs(varName, multiLineContent) {
         // console.log('Updating code outputs...'); // Noisy
-        jsCodeOutput.value = `let ${varName} = ${imgLiteral};`;
-        pythonCodeOutput.value = `${varName} = ${imgLiteral}`; // Correct Python assignment
-        // imgLiteralOutput.value = imgLiteral; // Remove assignment
+
+        // Ensure multiLineContent doesn't start/end with extra newlines
+        const trimmedContent = multiLineContent.trim();
+
+        // Add indentation (e.g., 4 spaces) to each line of the sprite data
+        const indentedSpriteData = trimmedContent.split('\n') // Split by newline char
+                                             .map(line => '    ' + line) // Indent
+                                             .join('\n'); // Join with newline char
+
+        // Construct the final formatted code strings using template literals with actual newlines
+        // JavaScript version (already correct)
+        const jsCode =
+`let ${varName} = sprites.create(img\`
+${indentedSpriteData}
+\`, SpriteKind.Player)`;
+
+        // Python version - Add parentheses around the img literal
+        const pythonCode =
+`${varName} = sprites.create(img("""
+${indentedSpriteData}
+"""), SpriteKind.player)`; // Added parentheses HERE ---^  ^
+
+        jsCodeOutput.value = jsCode;
+        pythonCodeOutput.value = pythonCode;
     }
 
     function resetPreviewAndOutput() {
@@ -552,23 +560,22 @@ function copyCode(elementId) {
     textArea.select();
     textArea.setSelectionRange(0, 99999); // For mobile devices
 
-    navigator.clipboard.writeText(textArea.value).then(() => {
-        console.log('Code copied to clipboard!');
-        // Optional: Add visual feedback (e.g., change button text briefly)
-    }).catch(err => {
-        console.error('Failed to copy code using Clipboard API: ', err);
-        // Fallback for older browsers or insecure contexts (like http)
-        try {
-            const successful = document.execCommand('copy');
-            if (successful) {
-                console.log('Code copied to clipboard (fallback method).');
-            } else {
-                 console.error('Fallback copy command failed.');
-                 alert('Failed to copy code automatically. Please copy manually.');
-            }
-        } catch (execErr) {
-            console.error('Fallback copy failed with error: ', execErr);
-            alert('Failed to copy code automatically. Please copy manually.');
+    let successful = false;
+    try {
+        successful = document.execCommand('copy');
+        if (successful) {
+            console.log('Code copied to clipboard (execCommand).');
+            // Optional: Add visual feedback (e.g., temporary message)
+            // alert('Code copied!'); // Example feedback
+        } else {
+             console.error('Fallback copy command failed.');
+             alert('Failed to copy code automatically. Please copy manually.');
         }
-    });
+    } catch (err) {
+        console.error('execCommand copy failed with error: ', err);
+        alert('Failed to copy code automatically. Please copy manually.');
+    }
+
+    // Deselect text after copy attempt (optional)
+    // window.getSelection().removeAllRanges();
 }
