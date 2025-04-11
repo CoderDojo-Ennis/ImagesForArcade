@@ -1,9 +1,13 @@
 body {
-    font-family: sans-serif;
+    font-family: 'Poppins', sans-serif;
     line-height: 1.6;
     margin: 0;
-    padding: 20px;
+    padding: 10px 20px;
     background-color: #f4f4f4;
+}
+
+h1, h2, h3, h4 {
+    font-weight: 700;
 }
 
 h1 {
@@ -23,7 +27,7 @@ h1 {
 /* Panel styling */
 .panel {
     background-color: #fff;
-    padding: 20px;
+    padding: 15px 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     flex-grow: 1; /* Allow panels to grow */
@@ -40,7 +44,7 @@ h1 {
 }
 
 section {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 h2 {
@@ -65,7 +69,7 @@ h4 {
 label {
     display: inline-block;
     margin-bottom: 5px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 input[type="file"],
@@ -109,6 +113,15 @@ button:hover {
     background-color: #4cae4c;
 }
 
+/* Style for Copy Code buttons */
+.copy-button {
+    background-color: #8442f5;
+}
+
+.copy-button:hover {
+    background-color: #6a30d9; /* Darker shade for hover */
+}
+
 button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
@@ -116,19 +129,49 @@ button:disabled {
 
 /* --- Drop Zone Styles --- */
 #dropZone {
+    /* Apply drop zone styles directly to the canvas container */
     border: 2px dashed #ccc;
-    padding: 30px;
+    padding: 10px; 
     text-align: center;
     cursor: pointer;
     background-color: #fafafa;
     transition: background-color 0.2s ease;
+    position: relative; 
+    min-height: 150px; 
+    display: flex; 
+    flex-direction: column; /* Still stack placeholder and canvas */
+    align-items: center; 
+    justify-content: center; 
 }
 
-#dropZone p {
-    margin: 0;
+/* Hide canvas initially */
+#originalCanvas {
+    background-color: #eee; 
+    border: 1px solid black; 
+    /* margin-top: 10px; Removed */
+    display: none; /* Keep hidden initially */
+    max-width: 100%; 
+    height: auto;
+    margin: 10px auto 0 auto; /* Center horizontally, add top margin */
+}
+
+/* Placeholder text style */
+.drop-zone-placeholder {
     color: #666;
+    margin: 10px 0; 
 }
 
+/* Usage instructions style */
+.drop-zone-instructions {
+    font-size: 0.8em;
+    color: #777;
+    text-align: center;
+    margin-top: 5px; /* Reset top margin, add positive space */
+    margin-bottom: 0; /* Remove bottom margin as padding handles it */
+    width: 100%; /* Ensure it takes full width for centering */
+}
+
+/* Keep dragover effect */
 #dropZone.dragover {
     background-color: #e0e0e0;
     border-color: #aaa;
@@ -144,8 +187,9 @@ button:disabled {
 }
 
 .canvas-container {
-    flex: 1; /* Each container takes equal space */
-    min-width: 200px; /* Minimum width before wrapping */
+    flex: 1; 
+    min-width: 200px; 
+    /* border: 1px solid red; */ /* For debugging */
 }
 
 /* Style the preview container specifically */
@@ -236,12 +280,6 @@ textarea {
     padding: 5px;
 }
 
-#originalCanvas {
-    background-color: #eee; /* Make transparent areas visible */
-    border: 1px solid black; /* Add border */
-    margin-top: 10px;
-}
-
 /* Specific adjustments */
 #resizeValueInputs input {
     margin-bottom: 0; /* Align inputs better */
@@ -261,4 +299,58 @@ textarea {
     align-items: center;    /* Align items vertically */
     gap: 8px; /* Add some space between label, slider, value */
     margin-top: 10px;
-} 
+}
+
+/* --- Header Info Styles --- */
+.header-info {
+    text-align: center; 
+    margin: 0 20px 20px 20px;
+    padding: 15px; 
+    background-color: #8442f5;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center; 
+    gap: 20px; 
+}
+
+.header-info h1 {
+    margin: 0;
+    color: #ffffff;
+    text-align: left;
+    font-weight: 700;
+}
+
+.header-info img {
+    max-width: 250px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* New style for the text container */
+.header-text-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    flex: 1;
+    min-width: 250px;
+}
+
+.header-info p {
+    margin: 0;
+    text-align: left;
+    color: #ffffff;
+}
+
+.header-info a {
+    color: #ffffff; /* White link text for contrast */
+    text-decoration: underline; /* Keep underline for links */
+}
+
+.header-info a:hover {
+    text-decoration: none; /* Remove underline on hover */
+}
+/* --- End Header Info --- */ 

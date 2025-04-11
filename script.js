@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropZone = document.getElementById('dropZone');
     const originalCanvas = document.getElementById('originalCanvas');
     const originalCtx = originalCanvas.getContext('2d');
+    const dropZonePlaceholder = document.querySelector('.drop-zone-placeholder');
     const variableNameInput = document.getElementById('variableName');
     const sizeSlider = document.getElementById('sizeSlider');
     const sliderValueDisplay = document.getElementById('sliderValueDisplay');
@@ -97,6 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = (e) => {
             originalImage = new Image();
             originalImage.onload = () => {
+                // Show canvas, hide placeholder
+                originalCanvas.style.display = 'block';
+                if (dropZonePlaceholder) dropZonePlaceholder.style.display = 'none';
+
                 // Display original image
                 originalCanvas.width = originalImage.naturalWidth;
                 originalCanvas.height = originalImage.naturalHeight;
@@ -547,25 +552,32 @@ ${indentedSpriteData}
     }
 
     function resetUI() {
-        console.log('Resetting UI.');
-        // Clear canvases safely
-        if (originalCtx) originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
-
-        imageLoader.value = ''; // Clear the file input
+        console.log("Resetting UI");
         originalImage = null;
-        // processButton.disabled = true; // Button is gone
+        processedImageData = null;
+        originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+        previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        jsCodeOutput.value = '';
+        pythonCodeOutput.value = '';
+        spriteSizeSpan.textContent = 'N/A';
         variableNameInput.value = 'mySprite';
-        // Reset slider to default
         sizeSlider.value = 16;
         sliderValueDisplay.textContent = '16';
-        paletteModeSelect.value = 'arcade'; // Set default palette
-        // zoomSlider.value = 1; // Reset zoom slider to 1 - Belongs in resetUI
-        // zoomValueDisplay.textContent = '1x'; // Reset zoom display to 1x - Belongs in resetUI
-        // scalingModeSelect.value = 'pixelated'; // Reset scaling mode to pixelated - Belongs in resetUI
-        spriteKindSelect.value = 'Player'; // Reset sprite kind dropdown - Belongs in resetUI
-        customSpriteKindInput.style.display = 'none'; // Hide custom input - Belongs in resetUI
-        customSpriteKindInput.value = ''; // Clear custom input - Belongs in resetUI
-        resetPreviewAndOutput(); // Clear outputs and preview (now clears to black, hides size)
+        paletteModeSelect.value = 'arcade';
+        scalingModeSelect.value = 'smooth';
+        zoomSlider.value = 1;
+        zoomValueDisplay.textContent = '1x';
+        spriteKindSelect.value = 'Player';
+        customSpriteKindInput.style.display = 'none';
+        customSpriteKindInput.value = '';
+
+        // Reset canvas/placeholder visibility
+        originalCanvas.style.display = 'none';
+        if (dropZonePlaceholder) dropZonePlaceholder.style.display = 'block';
+        // Potentially reset dropZone style if needed (e.g., remove background color if set on load)
+        // dropZone.style.backgroundColor = '#fafafa'; // Example
+
+        imageLoader.value = ''; // Clear the file input
     }
 
     // Initialize UI state

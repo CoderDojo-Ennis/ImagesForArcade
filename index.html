@@ -4,31 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to MakeCode Arcade Sprite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Image to MakeCode Arcade Sprite Converter</h1>
+    <div class="header-info">
+        <img src="ImageToArcade.png" alt="Image to Arcade Converter Logo"> <!-- Let CSS control width -->
+        <div class="header-text-content">
+             <h1>Image to MakeCode Arcade Converter</h1>
+             <p>
+                Easily convert your images into MakeCode Arcade sprites! Upload an image, adjust settings like size and palette, and get the JavaScript or Python code to use in your Arcade projects.
+                <br>Built by <a href="https://coderdojoennis.com/" target="_blank">CoderDojo Ennis</a>. Free to use.
+            </p>
+        </div>
+    </div>
 
     <div class="container">
         <div class="panel input-preview-panel">
             <h2>Input & Preview</h2>
-
-            <section id="upload-section">
-                <h3>Upload Image</h3>
-                 <!-- Hidden actual file input -->
-                <input type="file" id="imageLoader" name="imageLoader" accept=".png, .jpg, .jpeg" style="display: none;"/>
-                <!-- Visible drop zone -->
-                <div id="dropZone">
-                    <p>Drop image here or click to browse</p>
-                </div>
-            </section>
+            <!-- Hidden actual file input - RESTORED -->
+            <input type="file" id="imageLoader" name="imageLoader" accept=".png, .jpg, .jpeg" style="display: none;"/>
 
             <!-- Section for side-by-side canvases -->
             <section id="canvas-comparison-section">
                  <div class="canvas-comparison">
-                    <div class="canvas-container">
-                        <h4>Original Image</h4>
-                        <canvas id="originalCanvas" style="border: 1px solid black; margin-top: 10px;"></canvas>
+                    <div class="canvas-container" id="dropZone">
+                        <!-- REMOVED H4 -->
+                        <p class="drop-zone-placeholder">Drop image here or click to browse</p>
+                        <canvas id="originalCanvas"></canvas>
+                        <p class="drop-zone-instructions">Drop image into box, or click box, to add or replace an image.</p>
                     </div>
                     <div class="canvas-container">
                         <h4>Preview in Arcade</h4>
@@ -38,6 +44,16 @@
                             <input type="range" id="sizeSlider" name="sizeSlider" min="8" max="128" value="16" style="vertical-align: middle;">
                             <span id="sliderValueDisplay" style="vertical-align: middle;">16</span>
                         </div>
+
+                        <!-- Add Scaling Mode Dropdown -->
+                        <div class="config-option">
+                            <label for="scalingMode">Scaling Mode:</label>
+                            <select id="scalingMode">
+                                <option value="smooth">Smooth</option>
+                                <option value="pixelated">Nearest Neighbor</option>
+                            </select>
+                        </div>
+
                         <!-- Move Size P here -->
                         <p>Size: <span id="spriteSize">N/A</span></p>
                         <!-- Preview container -->
@@ -65,14 +81,6 @@
                                 <option value="still_life">Still Life</option>
                                 <option value="steam_punk">Steam Punk</option>
                                 <option value="grayscale">Grayscale</option>
-                            </select>
-                        </div>
-                        <!-- Add Scaling Mode Dropdown -->
-                        <div class="config-option">
-                            <label for="scalingMode">Scaling Mode:</label>
-                            <select id="scalingMode">
-                                <option value="smooth">Smooth</option>
-                                <option value="pixelated">Nearest Neighbor</option>
                             </select>
                         </div>
                     </div>
@@ -112,14 +120,14 @@
 
                 <div id="javascript" class="tabcontent" style="display:block;">
                     <h4>JavaScript</h4>
-                    <textarea id="jsCodeOutput" rows="8" cols="70" readonly></textarea>
-                    <button onclick="copyCode('jsCodeOutput')">Copy JavaScript</button>
+                    <textarea id="jsCodeOutput" rows="6" cols="70" readonly></textarea>
+                    <button class="copy-button" onclick="copyCode('jsCodeOutput')">Copy JavaScript</button>
                 </div>
 
                 <div id="python" class="tabcontent">
                     <h4>Python</h4>
-                    <textarea id="pythonCodeOutput" rows="8" cols="70" readonly></textarea>
-                    <button onclick="copyCode('pythonCodeOutput')">Copy Python</button>
+                    <textarea id="pythonCodeOutput" rows="6" cols="70" readonly></textarea>
+                    <button class="copy-button" onclick="copyCode('pythonCodeOutput')">Copy Python</button>
                 </div>
             </section>
         </div>
