@@ -241,7 +241,8 @@ button:disabled {
 
 /* Style the buttons inside the tab */
 .tablink {
-    background-color: inherit;
+    background-color: #c7a4ff; /* Lighter purple for inactive tabs */
+    color: #333; /* Dark text for lighter background */
     float: left;
     border: none;
     outline: none;
@@ -250,16 +251,19 @@ button:disabled {
     transition: 0.3s;
     font-size: 1em;
     border-radius: 4px 4px 0 0;
+    font-family: 'Poppins', sans-serif; /* Ensure font consistency */
+    font-weight: 400; /* Regular weight for inactive */
 }
 
 /* Change background color of buttons on hover */
 .tablink:hover {
-    background-color: #ddd;
+    background-color: #b388ff; /* Slightly darker purple on hover */
 }
 
 /* Create an active/current tablink class */
 .tablink.active {
-    background-color: #ccc;
+    background-color: #8442f5; /* Main purple for active tab */
+    color: #ffffff; /* White text for contrast */
 }
 
 /* Style the tab content */
